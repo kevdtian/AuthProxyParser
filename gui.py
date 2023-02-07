@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog
 from tkcalendar import Calendar
 import os
 from datetime import datetime, timedelta
@@ -11,7 +12,8 @@ class MyGUI:
         return:none
         """
         self.date = "Any", "to", "Any"
-
+        self.concatinated_file = None
+        self.default_file = None
         self.show_Date = None
         self.to_date = None
         self.to_label = None
@@ -20,10 +22,8 @@ class MyGUI:
         self.from_date = None
         self.from_label = None
         self.from_frame = None
-
         # Create the main frame and assign it the root variable
         self.root = tk.Tk()
-
         # Set the resolution and center root
         w = 1280
         h = 720
@@ -31,35 +31,40 @@ class MyGUI:
         hs = self.root.winfo_screenheight()
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
-
         self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
-
-        # Set the background of root to gray
+        # Setr the background of root to gray
         self.root.configure(bg="#212124")
-
         # Set the title of root
         self.root.title("Auth Proxy Log Parser")
 
         # Create the first frame inside of root and assign it the topFrame variable
-        self.topFrame = tk.Frame(self.root, width=50, height=40, bg="#45ba6e")
-        self.topFrame.pack(fill="x", pady=5)
+        self.topFrame = tk.Frame(self.root, width=50,height= 40, bg='#45ba6e')
+        self.topFrame.pack(fill='x', pady=5)
 
         # Create the second frame inside of root and assign it the leftFrame variable
-        self.leftFrame = tk.Frame(self.root, width=500, height=500, bg="#212124")
-        self.leftFrame.pack(
-            pady=5, padx=5, ipady=5, ipadx=5, side="left", expand=True, fill="both"
-        )
+        self.leftFrame = tk.Frame(self.root, width=500,height= 500)
+        self.leftFrame.pack(pady=5,padx=5,ipady=5,ipadx=5,side='left', expand=True, fill='both')
 
         # Create the third frame inside of root and assign it the rightFrame variable
 
         self.rightFrame = tk.Frame(self.root, width=500, height=500, bg="#212124")
         self.rightFrame.pack(ipady=5, ipadx=5, side="left", expand=True, fill="both")
 
-        # Create the text above output field (Label Object) and adding it the label variable
-        self.clear_button = tk.Button(
-            self.rightFrame, text="Clear", command=self.clear, width=4, bg="#212124", fg="#FAF9F6"
+        self.bottomRightFrame = tk.Frame(self.rightFrame, width=50, height=20)
+        self.bottomRightFrame.pack(
+            ipady=5, ipadx=5, side="bottom", expand=True, fill="both"
         )
-        self.clear_button.pack(side="top", anchor="w", padx=5, pady=5)
+
+        # Create the text above output field (Label Object) and add it the label variable
+        self.reset_button = tk.Button(
+            self.rightFrame, text="Reset to Default", command=self.reset, bg="#212124", fg="#FAF9F6"
+        )
+        self.reset_button.pack(side="left", anchor="w", pady=5)
+
+        self.choose_file = tk.Button(
+            self.rightFrame, text="Choose File", command=self.open_file, bg="#212124", fg="#FAF9F6"
+        )
+        self.choose_file.pack(side="left", anchor="w", padx=5)
 
         # Create the text inside the topFrame  (Label Object) and adding it the label variable
         self.label = tk.Label(
@@ -88,19 +93,17 @@ class MyGUI:
 
         # Create a text object box with the appropriate sizing. Set the status to disabled (non-editable)
         self.outputBox = tk.Text(
-            self.rightFrame,
+            self.bottomRightFrame,
             width=50,
             font=("Arial", 12),
             wrap="word",
             state=tk.DISABLED,
             bg="#212124",
-            fg="#FAF9F6",
         )
 
         # Pack the Text object
-        self.outputBox.pack(expand=True, fill="both", padx=5)
-
-        # Create quitButton (Button Object) for the quit button. Assign frame,text, command, and pack it. Best practice is to separate the packing from the variable (to do)
+        self.outputBox.pack(expand=True, fill="both", side="left", anchor="w", pady=5)
+        # Create quitButton (Button Object) for the quit button. Assign frame,text, command, and pack it.
         self.quitButton = tk.Button(
             self.leftFrame, text="Quit", command=self.root.destroy, bg="#212124", fg="#FAF9F6"
         )
@@ -119,7 +122,6 @@ class MyGUI:
         self.dateButton.pack(side="top", anchor="w", padx=5)
         self.current_date_label = tk.Label(self.leftFrame, text=self.date, bg="#212124", fg="#FAF9F6")
         self.current_date_label.pack()
-        self.display_output_box(conc_file, None, None)
 
     def start(self):
         self.root.mainloop()
@@ -134,26 +136,28 @@ class MyGUI:
         self.outputBox.delete(1.0, "end")
         if from_date and to_date:
             words = filter_by_date(words, from_date, to_date)
+            #self.concatinated_file = words
 
-        if words:
+        if type(words) is list:
             # insert the input from the input textbox (Entry object) at line 1, character 0
             for line in range(len(words)):
                 self.outputBox.insert(1.0, words[line])
-            # self.outputBox.insert(1.0, words)
             # Change the status of the text object to DISABLED (non editable)
             self.outputBox.configure(state=tk.DISABLED)
+        elif type(words) is str:
+            self.outputBox.insert(1.0, words)
         else:
             self.outputBox.insert(
                 1.0,
                 "No files found in default directories, please import Proxy log files.",
             )
-            # self.outputBox.insert(1.0, words)
             # Change the status of the text object to DISABLED (non editable)
             self.outputBox.configure(state=tk.DISABLED)
 
-    def clear(self):
+    def reset(self):
         self.outputBox.configure(state=tk.NORMAL)
-        self.outputBox.delete(1.0, "end")
+        self.concatinated_file = self.default_file
+        self.display_output_box(self.concatinated_file, None, None)
         self.outputBox.configure(state=tk.DISABLED)
 
     def grab_search_box(self):
@@ -200,13 +204,36 @@ class MyGUI:
         self.from_frame.destroy()
         self.to_frame.destroy()
         self.update_shown_date()
-        self.display_output_box(import_default_dir()[1], self.date[0], self.date[2])
-        return self.date[0], self.date[2]
+        self.display_output_box(self.concatinated_file, self.date[0], self.date[2])
 
     def update_shown_date(self):
         self.current_date_label.destroy()
         self.current_date_label = tk.Label(self.leftFrame, text=self.date)
         self.current_date_label.pack()
+
+    def open_file(self):
+        file_object = tk.filedialog.askopenfilenames()
+        encoded = list()
+        for file in file_object:
+            handler = open(file, mode="r", encoding="latin-1")
+            encoded.append(handler)
+        if len(encoded) > 0:
+            concatinated_file = merge_files(encoded)
+        else:
+            return None
+        for file in encoded:
+            file.close()
+        try:
+            datetime.strptime(concatinated_file[0][0:10], "%Y-%m-%d")
+        except ValueError:
+            self.display_output_box("Incorrect proxy log file", None, None)
+        except IndexError:
+            self.display_output_box("Incorrect proxy log file", None, None)
+        else:
+            concatinated_file.reverse()
+            self.concatinated_file = concatinated_file
+            self.default_file = concatinated_file
+            self.display_output_box(self.concatinated_file, None, None)
 
 
 def import_default_dir():
@@ -216,18 +243,44 @@ def import_default_dir():
     args: None
     return: str, directory that has the proxy logs. File Object, the concatenated files from the log directory
     """
-    program_files = "C:\Program Files\Duo Security Authentication proxy\Log"
+    program_files = "C:\Program Files\Duo Security Authentication proxy\Log\'"
+    #program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
     program_files_x86 = r"C:\Program Files x86\Duo Security Authentication proxy\Log\'"
     if os.path.exists(program_files):
-        conc_file = merge_files(
-            program_files, filter_log_directory(os.listdir(program_files), "authproxy")
-        )
-        return program_files, conc_file
+        # list for io wrappers
+        io_wrappers = list()
+        # init filtered list and call on filter function
+        authproxy_logs = filter_log_directory(os.listdir(program_files), "authproxy")
+        authproxy_logs.sort()
+        # for file in filtered list
+        for file in authproxy_logs:
+            # open it and append handler to io wrappers list
+            handler = open(program_files + file, "r", encoding="latin-1")
+            io_wrappers.append(handler)
+        # Call on merge_files to return a readlines list of all the io wrappers provided
+        concatinated_file = merge_files(io_wrappers)
+        for wrapper in io_wrappers:
+            wrapper.close()
+        concatinated_file.reverse()
+        return program_files, concatinated_file
     elif os.path.exists(program_files_x86):
-        conc_file = merge_files(
-            program_files, filter_log_directory(os.listdir(program_files), "authproxy")
-        )
-        return program_files, conc_file
+        # list for io wrappers
+        io_wrappers = list()
+        # init filtered list and call on filter function
+        authproxy_logs = filter_log_directory(os.listdir(program_files), "authproxy")
+        authproxy_logs.sort()
+        # for file in filtered list
+        for file in authproxy_logs:
+            # open it and append handler to io wrappers list
+            handler = open(program_files + file, "r", encoding="latin-1")
+            io_wrappers.append(handler)
+        # Call on merge_files to return a readlines list of all the io wrappers provided
+        concatinated_file = merge_files(io_wrappers)
+        for wrapper in io_wrappers:
+            wrapper.close()
+        concatinated_file.reverse()
+        return program_files, concatinated_file
+
     else:
         return (
             "No files found in default directories, please import Proxy log files",
@@ -242,16 +295,16 @@ def filter_log_directory(path, start_with):
     return [file for file in path if file.startswith(start_with)]
 
 
-def merge_files(path, files):
-    """Merge the provided proxy log files into one file object. Files are sorted in order from newest to oldest
-    args: str, path of the files, list, list of the file names
+def merge_files(files):
+    """Merge the provided proxy log files into one list of every line in the file objects provided. Files are sorted in order from newest to oldest
+    args: list, list of io_wrappers/file objects for the log files
     return: list. lines of concatenated files"""
     return_list = []
-    files.sort()
+    files.reverse()
     for file in files:
-        with open(path + file, "r", encoding="latin-1") as handler:
-            for line in handler.readlines():
-                return_list.append(line)
+        for line in file.readlines():
+            return_list.append(line)
+
     return return_list
 
 
@@ -263,6 +316,7 @@ def filter_by_date(lines, from_date, to_date):
         for line in lines:
             if line[0:10] in dates_list or line[0:5] == " ":
                 filtered_list.append(line)
+    filtered_list
     return filtered_list
 
 
@@ -287,9 +341,9 @@ def convert_from_datetime_to_str(dates):
 
 def calculate_date_difference(from_date, to_date):
     list_of_dates = list()
-    from_date, to_date = convert_from_str_to_datetime(
-        from_date
-    ), convert_from_str_to_datetime(to_date)
+    from_date = convert_from_str_to_datetime(from_date)
+    to_date = convert_from_str_to_datetime(to_date)
+
     list_of_dates.append(from_date)
     if from_date or to_date != None:
         delta = (to_date - from_date).days
@@ -298,10 +352,11 @@ def calculate_date_difference(from_date, to_date):
     return list_of_dates
 
 
-"""Add logic to detect 'Choose File' button value. If none is chosen, run the below function call"""
 # Call on the import_default_dir function. Assign the two return values to directory and conc file. Note that at the moment, the value for directory
 # is not used, but may become useful in the future.
-directory, conc_file = import_default_dir()
 
 s = MyGUI()
+s.concatinated_file = import_default_dir()[1]
+s.default_file = s.concatinated_file
+s.display_output_box(s.concatinated_file, None, None)
 s.start()
