@@ -12,7 +12,7 @@ class MyGUI:
         return:none
         """
         self.date = "Any", "to", "Any"
-        self.concatinated_file = None
+        self.concatenated_file = None
         self.default_file = None
         self.show_Date = None
         self.to_date = None
@@ -32,7 +32,7 @@ class MyGUI:
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
         self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
-        # Setr the background of root to gray
+        # Set the background of root to gray
         self.root.configure(bg="#212124")
         # Set the title of root
         self.root.title("Auth Proxy Log Parser")
@@ -42,7 +42,7 @@ class MyGUI:
         self.topFrame.pack(fill='x', pady=5)
 
         # Create the second frame inside of root and assign it the leftFrame variable
-        self.leftFrame = tk.Frame(self.root, width=500,height= 500)
+        self.leftFrame = tk.Frame(self.root, width=500,height= 500, bg="#212124")
         self.leftFrame.pack(pady=5,padx=5,ipady=5,ipadx=5,side='left', expand=True, fill='both')
 
         # Create the third frame inside of root and assign it the rightFrame variable
@@ -87,7 +87,7 @@ class MyGUI:
 
         # Create the search box (Entry object) and adding it the textbox variable
         self.textbox = tk.Entry(
-            self.leftFrame, width=20, font=("Arial", 20), bg="#212124"
+            self.leftFrame, width=20, font=("Arial", 16), bg="#212124", fg="#FAF9F6"
         )
         self.textbox.pack(anchor="n", expand=False, fill="x", padx=5)
 
@@ -99,10 +99,11 @@ class MyGUI:
             wrap="word",
             state=tk.DISABLED,
             bg="#212124",
+            fg="#FAF9F6"
         )
 
         # Pack the Text object
-        self.outputBox.pack(expand=True, fill="both", side="left", anchor="w", pady=5)
+        self.outputBox.pack(expand=True, fill="both", side="left", anchor="w", padx=1, pady=1)
         # Create quitButton (Button Object) for the quit button. Assign frame,text, command, and pack it.
         self.quitButton = tk.Button(
             self.leftFrame, text="Quit", command=self.root.destroy, bg="#212124", fg="#FAF9F6"
@@ -111,7 +112,7 @@ class MyGUI:
 
         # Create the search button (Button object) and adding it the searchButton variable
         self.searchButton = tk.Button(
-            self.leftFrame, text="Search", command=None, width=7, bg="#212124", fg="#FAF9F6"
+            self.leftFrame, text="Search", command=self.search_input, width=7, bg="#212124", fg="#FAF9F6"
         )
         self.searchButton.pack(anchor="nw", padx=5, pady=10, after=self.textbox)
 
@@ -136,7 +137,7 @@ class MyGUI:
         self.outputBox.delete(1.0, "end")
         if from_date and to_date:
             words = filter_by_date(words, from_date, to_date)
-            #self.concatinated_file = words
+            #self.concatenated_file = words
 
         if type(words) is list:
             # insert the input from the input textbox (Entry object) at line 1, character 0
@@ -156,11 +157,11 @@ class MyGUI:
 
     def reset(self):
         self.outputBox.configure(state=tk.NORMAL)
-        self.concatinated_file = self.default_file
-        self.display_output_box(self.concatinated_file, None, None)
+        self.concatenated_file = self.default_file
+        self.display_output_box(self.concatenated_file, None, None)
         self.outputBox.configure(state=tk.DISABLED)
 
-    def grab_search_box(self):
+    def get_search_box(self):
         """returns the string inputted in the search box of the gui.
         input:none
         return: str. String in the search box of the gui"""
@@ -204,7 +205,7 @@ class MyGUI:
         self.from_frame.destroy()
         self.to_frame.destroy()
         self.update_shown_date()
-        self.display_output_box(self.concatinated_file, self.date[0], self.date[2])
+        self.display_output_box(self.concatenated_file, self.date[0], self.date[2])
 
     def update_shown_date(self):
         self.current_date_label.destroy()
@@ -218,23 +219,36 @@ class MyGUI:
             handler = open(file, mode="r", encoding="latin-1")
             encoded.append(handler)
         if len(encoded) > 0:
-            concatinated_file = merge_files(encoded)
+            concatenated_file = merge_files(encoded)
         else:
             return None
         for file in encoded:
             file.close()
         try:
-            datetime.strptime(concatinated_file[0][0:10], "%Y-%m-%d")
+            datetime.strptime(concatenated_file[0][0:10], "%Y-%m-%d")
         except ValueError:
             self.display_output_box("Incorrect proxy log file", None, None)
         except IndexError:
             self.display_output_box("Incorrect proxy log file", None, None)
         else:
-            concatinated_file.reverse()
-            self.concatinated_file = concatinated_file
-            self.default_file = concatinated_file
-            self.display_output_box(self.concatinated_file, None, None)
+            concatenated_file.reverse()
+            self.concatenated_file = concatenated_file
+            self.default_file = concatenated_file
+            self.display_output_box(self.concatenated_file, None, None)
 
+    def search_input(self):
+        text = self.get_search_box()
+        file = self.concatenated_file
+
+        searched_file = search_file(text, file)
+        
+        if self.date[0] == "Any" and self.date[2] == "Any":
+            self.display_output_box(searched_file, None, None)
+        else:
+            self.display_output_box(searched_file, self.date[0], self.date[2])
+
+        print("search", searched_file)
+        
 
 def import_default_dir():
     """Search through program files and program files x86. If the auth proxy directory is found in either, filter the log folder (to only include
@@ -243,9 +257,11 @@ def import_default_dir():
     args: None
     return: str, directory that has the proxy logs. File Object, the concatenated files from the log directory
     """
-    program_files = "C:\Program Files\Duo Security Authentication proxy\Log\'"
+    #program_files = "C:\Program Files\Duo Security Authentication proxy\Log\'"
     #program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
+    program_files = "D:\Work\Coding\AuthProxyLogParser\'"
     program_files_x86 = r"C:\Program Files x86\Duo Security Authentication proxy\Log\'"
+
     if os.path.exists(program_files):
         # list for io wrappers
         io_wrappers = list()
@@ -258,11 +274,11 @@ def import_default_dir():
             handler = open(program_files + file, "r", encoding="latin-1")
             io_wrappers.append(handler)
         # Call on merge_files to return a readlines list of all the io wrappers provided
-        concatinated_file = merge_files(io_wrappers)
+        concatenated_file = merge_files(io_wrappers)
         for wrapper in io_wrappers:
             wrapper.close()
-        concatinated_file.reverse()
-        return program_files, concatinated_file
+        concatenated_file.reverse()
+        return program_files, concatenated_file
     elif os.path.exists(program_files_x86):
         # list for io wrappers
         io_wrappers = list()
@@ -275,11 +291,11 @@ def import_default_dir():
             handler = open(program_files + file, "r", encoding="latin-1")
             io_wrappers.append(handler)
         # Call on merge_files to return a readlines list of all the io wrappers provided
-        concatinated_file = merge_files(io_wrappers)
+        concatenated_file = merge_files(io_wrappers)
         for wrapper in io_wrappers:
             wrapper.close()
-        concatinated_file.reverse()
-        return program_files, concatinated_file
+        concatenated_file.reverse()
+        return program_files, concatenated_file
 
     else:
         return (
@@ -326,6 +342,7 @@ def convert_from_str_to_datetime(date_string):
     return: date time object, a dtm object of the string argument if the formatting is correct.
             None, if the formatting is not correct"""
     date_time_object = None
+    date_string = str(date_string)
     try:
         date_time_object = datetime.strptime(date_string, "%Y-%m-%d").date()
     except ValueError:
@@ -351,12 +368,24 @@ def calculate_date_difference(from_date, to_date):
             list_of_dates.append(from_date + timedelta(days=days + 1))
     return list_of_dates
 
+def search_file(search_param, file_contents):
+    # Store search input.
+    new_list = list()
+    search_param = search_param
+    file_contents = file_contents
+
+    # Loop through each line in the list.
+    for line in file_contents:
+        if search_param in line:
+            new_list.append(line)
+
+    return new_list
 
 # Call on the import_default_dir function. Assign the two return values to directory and conc file. Note that at the moment, the value for directory
 # is not used, but may become useful in the future.
 
 s = MyGUI()
-s.concatinated_file = import_default_dir()[1]
-s.default_file = s.concatinated_file
-s.display_output_box(s.concatinated_file, None, None)
+s.concatenated_file = import_default_dir()[1]
+s.default_file = s.concatenated_file
+s.display_output_box(s.concatenated_file, None, None)
 s.start()
