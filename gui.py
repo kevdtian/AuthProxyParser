@@ -89,8 +89,9 @@ class MyGUI:
         self.textbox = tk.Entry(
             self.leftFrame, width=20, font=("Arial", 16), bg="#212124", fg="#FAF9F6"
         )
+        self.textbox.bind("<Return>", self.search_input)
         self.textbox.pack(anchor="n", expand=False, fill="x", padx=5)
-
+        
         # Create a text object box with the appropriate sizing. Set the status to disabled (non-editable)
         self.outputBox = tk.Text(
             self.bottomRightFrame,
@@ -123,7 +124,7 @@ class MyGUI:
         self.dateButton.pack(side="top", anchor="w", padx=5)
         self.current_date_label = tk.Label(self.leftFrame, text=self.date, bg="#212124", fg="#FAF9F6")
         self.current_date_label.pack()
-
+        
     def start(self):
         self.root.mainloop()
 
@@ -236,7 +237,7 @@ class MyGUI:
             self.default_file = concatenated_file
             self.display_output_box(self.concatenated_file, None, None)
 
-    def search_input(self):
+    def search_input(self, event=None):
         text = self.get_search_box()
         file = self.concatenated_file
 
@@ -246,9 +247,6 @@ class MyGUI:
             self.display_output_box(searched_file, None, None)
         else:
             self.display_output_box(searched_file, self.date[0], self.date[2])
-
-        print("search", searched_file)
-        
 
 def import_default_dir():
     """Search through program files and program files x86. If the auth proxy directory is found in either, filter the log folder (to only include
@@ -376,7 +374,7 @@ def search_file(search_param, file_contents):
 
     # Loop through each line in the list.
     for line in file_contents:
-        if search_param in line:
+        if search_param.casefold() in line.casefold():
             new_list.append(line)
 
     return new_list
