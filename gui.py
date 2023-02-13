@@ -1,6 +1,8 @@
 import tkinter as tk
+from functools import partial
 from tkinter import filedialog
-from tkcalendar import Calendar
+from tkinter import scrolledtext
+from tkcalendar import DateEntry
 import os
 from datetime import datetime, timedelta
 
@@ -22,6 +24,7 @@ class MyGUI:
         self.from_date = None
         self.from_label = None
         self.from_frame = None
+        self.name = None
         # Create the main frame and assign it the root variable
         self.root = tk.Tk()
         # Set the resolution and center root
@@ -29,8 +32,8 @@ class MyGUI:
         h = 720
         ws = self.root.winfo_screenwidth()
         hs = self.root.winfo_screenheight()
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
+        x = (ws / 2) - (w / 2)
+        y = (hs / 2) - (h / 2)
         self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
         # Set the background of root to gray
         self.root.configure(bg="#212124")
@@ -38,22 +41,25 @@ class MyGUI:
         self.root.title("Auth Proxy Log Parser")
 
         # Create the first frame inside of root and assign it the topFrame variable
-        self.topFrame = tk.Frame(self.root, width=50,height= 40, bg='#45ba6e')
+        self.topFrame = tk.Frame(self.root, width=50, height=40, bg='#45ba6e')
         self.topFrame.pack(fill='x', pady=5)
 
         # Create the second frame inside of root and assign it the leftFrame variable
-        self.leftFrame = tk.Frame(self.root, width=500,height= 500, bg="#212124")
-        self.leftFrame.pack(pady=5,padx=5,ipady=5,ipadx=5,side='left', expand=True, fill='both')
+        self.leftFrame = tk.Frame(self.root, width=500, height=500, bg="#212124")
+        self.leftFrame.pack(pady=5, padx=5, ipady=5, ipadx=5, side='left', fill='both')
 
         # Create the third frame inside of root and assign it the rightFrame variable
 
         self.rightFrame = tk.Frame(self.root, width=500, height=500, bg="#212124")
         self.rightFrame.pack(ipady=5, ipadx=5, side="left", expand=True, fill="both")
 
-        self.bottomRightFrame = tk.Frame(self.rightFrame, width=50, height=20)
+        self.bottomRightFrame = tk.Frame(self.rightFrame, width=50, height=20, bg="#212124")
         self.bottomRightFrame.pack(
             ipady=5, ipadx=5, side="bottom", expand=True, fill="both"
         )
+
+        self.bottomLeftFrame = tk.Frame(self.leftFrame, width=50, height=275, bg="#212124")
+        self.bottomLeftFrame.pack(ipady=5, ipadx=5, side="bottom", fill='both', expand=True)
 
         # Create the text above output field (Label Object) and add it the label variable
         self.reset_button = tk.Button(
@@ -83,17 +89,18 @@ class MyGUI:
             bg="#212124",
             fg="#FAF9F6",
         )
+
         self.textboxLabel.pack(anchor="nw", padx=5)
 
         # Create the search box (Entry object) and adding it the textbox variable
         self.textbox = tk.Entry(
-            self.leftFrame, width=20, font=("Arial", 16), bg="#212124", fg="#FAF9F6"
+            self.leftFrame, width=47, font=("Arial", 16), bg="#212124", fg="#FAF9F6", justify='left'
         )
         self.textbox.bind("<Return>", self.search_input)
         self.textbox.pack(anchor="n", expand=False, fill="x", padx=5)
-        
+
         # Create a text object box with the appropriate sizing. Set the status to disabled (non-editable)
-        self.outputBox = tk.Text(
+        self.outputBox = tk.scrolledtext.ScrolledText(
             self.bottomRightFrame,
             width=50,
             font=("Arial", 12),
@@ -109,22 +116,30 @@ class MyGUI:
         self.quitButton = tk.Button(
             self.leftFrame, text="Quit", command=self.root.destroy, bg="#212124", fg="#FAF9F6"
         )
-        self.quitButton.pack(side="bottom", anchor="sw")
+        self.quitButton.pack(side="bottom", anchor="sw", before=self.bottomLeftFrame)
 
         # Create the search button (Button object) and adding it the searchButton variable
+        self.lineCount = tk.Spinbox(self.leftFrame, from_=1, to_=9, width=5)
+        self.lineCount.pack(anchor="nw", padx=5, ipady=1)
+
         self.searchButton = tk.Button(
             self.leftFrame, text="Search", command=self.search_input, width=7, bg="#212124", fg="#FAF9F6"
         )
-        self.searchButton.pack(anchor="nw", padx=5, pady=10, after=self.textbox)
+        self.searchButton.pack(anchor="nw", padx=5, pady=10)
 
         # Create the date button (Button Object) and assign it the dateButton variable
         self.dateButton = tk.Button(
             self.leftFrame, text="Date", command=self.show_date, width=7, bg="#212124", fg="#FAF9F6"
         )
-        self.dateButton.pack(side="top", anchor="w", padx=5)
+        self.dateButton.pack(anchor="nw", padx=5)
         self.current_date_label = tk.Label(self.leftFrame, text=self.date, bg="#212124", fg="#FAF9F6")
         self.current_date_label.pack()
-        
+
+        self.errorsButton = tk.Button(
+            self.bottomLeftFrame, text="Compile Errors", command=self.init_compiler, width=10, bg='blue'
+        )
+        self.errorsButton.pack(anchor='nw')
+
     def start(self):
         self.root.mainloop()
 
@@ -138,7 +153,7 @@ class MyGUI:
         self.outputBox.delete(1.0, "end")
         if from_date and to_date:
             words = filter_by_date(words, from_date, to_date)
-            #self.concatenated_file = words
+            # self.concatenated_file = words
 
         if type(words) is list:
             # insert the input from the input textbox (Entry object) at line 1, character 0
@@ -155,7 +170,6 @@ class MyGUI:
             )
             # Change the status of the text object to DISABLED (non editable)
             self.outputBox.configure(state=tk.DISABLED)
-
     def reset(self):
         self.outputBox.configure(state=tk.NORMAL)
         self.concatenated_file = self.default_file
@@ -173,32 +187,35 @@ class MyGUI:
         args: None
         return: None"""
         self.dateButton.configure(state=tk.DISABLED)
-        self.from_frame = tk.Frame(self.leftFrame, width=50, height=80)
+        self.from_frame = tk.Frame(self.leftFrame, bg="#212124", width=10)
         self.from_label = tk.Label(self.from_frame, text="From")
-        self.from_date = Calendar(
+        self.from_date = DateEntry(
             self.from_frame,
             showweeknumbers=False,
             showothermonthdays=False,
             date_pattern="yyyy-mm-dd",
         )
-        self.submit_button = tk.Button(
-            self.from_frame, text="Submit", command=self.get_date_range
-        )
-        self.to_frame = tk.Frame(self.leftFrame, width=50, height=80)
+
+        self.to_frame = tk.Frame(self.leftFrame, bg="#212124")
         self.to_label = tk.Label(self.to_frame, text="To")
-        self.to_date = Calendar(
+        self.to_date = DateEntry(
             self.to_frame,
             showweeknumbers=False,
             showothermonthdays=False,
             date_pattern="yyyy-mm-dd",
         )
+
+        self.submit_button = tk.Button(
+            self.to_frame, text="Submit", command=self.get_date_range
+        )
+
         self.from_frame.pack(anchor="nw", padx=5, side="left")
-        self.from_label.pack(anchor="w", padx=2)
-        self.from_date.pack(anchor="w", padx=2)
-        self.submit_button.pack(anchor="w")
+        self.from_label.pack(anchor="w", padx=2, side='left')
+        self.from_date.pack(padx=2, side='left')
         self.to_frame.pack(anchor="ne", padx=5, side="left")
-        self.to_label.pack(anchor="w")
-        self.to_date.pack(anchor="w")
+        self.to_label.pack(anchor="w", side='left')
+        self.to_date.pack(anchor="w", side='left')
+        self.submit_button.pack(anchor="w")
 
     def get_date_range(self):
         self.dateButton.configure(state=tk.NORMAL)
@@ -242,11 +259,54 @@ class MyGUI:
         file = self.concatenated_file
 
         searched_file = search_file(text, file)
-        
+
         if self.date[0] == "Any" and self.date[2] == "Any":
             self.display_output_box(searched_file, None, None)
         else:
             self.display_output_box(searched_file, self.date[0], self.date[2])
+
+        print("search", searched_file)
+
+    def init_compiler(self):
+        self.errorsButton.configure(command=self.destroy_event_compiler)
+        button_names, lines = compile_events(self.concatenated_file)
+
+        for index in range(len(button_names)):
+            if len(lines[index]) > 0:
+                self.name = tk.Button(self.bottomLeftFrame,
+                                      command=partial(self.display_output_box, lines[index], None, None),
+                                      text=button_names[index], width=20)
+                self.name.pack(anchor='nw')
+
+    def destroy_event_compiler(self):
+        self.errorsButton.configure(command=self.init_compiler)
+        objects_in_frame = self.bottomLeftFrame.winfo_children()
+        for obj in objects_in_frame:
+            if obj.cget('text') != "Compile Errors":
+                obj.destroy()
+            elif obj.cget('text') == 'Compile Errors':
+                obj.configure(command=self.init_compiler)
+
+
+def compile_events(conc_file):
+    # The dictionary format is: {KEY(str)    name of button:
+    #                           VALUE(list)      [(error strs),[line log file]]}
+    events_dic = {'Successful Authentication': [('Success, Logging you in',), []],
+                  'Incorrect Password': [('invalidCredentials', 'data 52e',), []],
+                  'Invalid SKEY': [('Invalid SKEY',), []],
+                  'User LDAP permissions issues': [('AcceptSecurityContext error, data 531',), []],
+                  'Auth Proxy Start': [('Duo Security Authentication Proxy 5.7.4 - Init Complete',), []],
+                  }
+    for line in conc_file:
+        for values in events_dic.values():
+            for search_str in values[0]:
+                if search_str.lower() in line.lower():
+                    values[1].append(line)
+
+    error_lines = [error[1] for error in events_dic.values()]
+
+    return list(events_dic.keys()), error_lines
+
 
 def import_default_dir():
     """Search through program files and program files x86. If the auth proxy directory is found in either, filter the log folder (to only include
@@ -255,9 +315,9 @@ def import_default_dir():
     args: None
     return: str, directory that has the proxy logs. File Object, the concatenated files from the log directory
     """
-    #program_files = "C:\Program Files\Duo Security Authentication proxy\Log\'"
-    #program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
-    program_files = "D:\Work\Coding\AuthProxyLogParser\'"
+    program_files = "C:\Program Files\Duo Security Authentication proxy\Log\""
+    program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
+    # program_files = "D:\Work\Coding\AuthProxyLogParser\'"
     program_files_x86 = r"C:\Program Files x86\Duo Security Authentication proxy\Log\'"
 
     if os.path.exists(program_files):
@@ -330,7 +390,6 @@ def filter_by_date(lines, from_date, to_date):
         for line in lines:
             if line[0:10] in dates_list or line[0:5] == " ":
                 filtered_list.append(line)
-    filtered_list
     return filtered_list
 
 
@@ -339,7 +398,6 @@ def convert_from_str_to_datetime(date_string):
     args: str, date time in the format of the auth proxy log
     return: date time object, a dtm object of the string argument if the formatting is correct.
             None, if the formatting is not correct"""
-    date_time_object = None
     date_string = str(date_string)
     try:
         date_time_object = datetime.strptime(date_string, "%Y-%m-%d").date()
@@ -360,11 +418,12 @@ def calculate_date_difference(from_date, to_date):
     to_date = convert_from_str_to_datetime(to_date)
 
     list_of_dates.append(from_date)
-    if from_date or to_date != None:
+    if from_date or to_date is not None:
         delta = (to_date - from_date).days
         for days in range(delta):
             list_of_dates.append(from_date + timedelta(days=days + 1))
     return list_of_dates
+
 
 def search_file(search_param, file_contents):
     # Store search input.
@@ -373,11 +432,12 @@ def search_file(search_param, file_contents):
     file_contents = file_contents
 
     # Loop through each line in the list.
-    for line in file_contents:
-        if search_param.casefold() in line.casefold():
+    for index,line in enumerate(file_contents):
+        if search_param in line:
             new_list.append(line)
 
     return new_list
+
 
 # Call on the import_default_dir function. Assign the two return values to directory and conc file. Note that at the moment, the value for directory
 # is not used, but may become useful in the future.
