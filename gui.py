@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.ttk as ttk
 from functools import partial
 from tkinter import filedialog
 from tkinter import scrolledtext
@@ -24,6 +25,7 @@ class MyGUI:
         self.from_date = None
         self.from_label = None
         self.from_frame = None
+        self.submit_frame = None
         self.name = None
         # Create the main frame and assign it the root variable
         self.root = tk.Tk()
@@ -63,12 +65,12 @@ class MyGUI:
 
         # Create the text above output field (Label Object) and add it the label variable
         self.reset_button = tk.Button(
-            self.rightFrame, text="Reset to Default", command=self.reset, bg="#212124", fg="#FAF9F6"
+            self.rightFrame, text="Reset to Default", command=self.reset, highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.reset_button.pack(side="left", anchor="w", pady=5)
 
         self.choose_file = tk.Button(
-            self.rightFrame, text="Choose File", command=self.open_file, bg="#212124", fg="#FAF9F6"
+            self.rightFrame, text="Choose File", command=self.open_file, highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.choose_file.pack(side="left", anchor="w", padx=5)
 
@@ -93,10 +95,14 @@ class MyGUI:
         self.textboxLabel.pack(anchor="nw", padx=5)
 
         # Create the search box (Entry object) and adding it the textbox variable
+        #ttk.Style().configure('pad.TEntry', padding='5 1 1 1', insertcolor='#FAF9F6')
+
         self.textbox = tk.Entry(
-            self.leftFrame, width=47, font=("Arial", 16), bg="#212124", fg="#FAF9F6", justify='left'
+            self.leftFrame, width=47, font=("Arial", 16), insertbackground="#FAF9F6", bg="#212124", fg="#FAF9F6", justify='left'
         )
+        
         self.textbox.bind("<Return>", self.search_input)
+
         self.textbox.pack(anchor="n", expand=False, fill="x", padx=5)
 
         # Create a text object box with the appropriate sizing. Set the status to disabled (non-editable)
@@ -114,31 +120,34 @@ class MyGUI:
         self.outputBox.pack(expand=True, fill="both", side="left", anchor="w", padx=1, pady=1)
         # Create quitButton (Button Object) for the quit button. Assign frame,text, command, and pack it.
         self.quitButton = tk.Button(
-            self.leftFrame, text="Quit", command=self.root.destroy, bg="#212124", fg="#FAF9F6"
+            self.leftFrame, text="Quit", command=self.root.destroy, highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.quitButton.pack(side="bottom", anchor="sw", before=self.bottomLeftFrame)
 
-        # Create the search button (Button object) and adding it the searchButton variable
-        self.lineCount = tk.Spinbox(self.leftFrame, from_=1, to_=9, width=5)
-        self.lineCount.pack(anchor="nw", padx=5, ipady=1)
+        
+        #self.lineCount = tk.Spinbox(self.leftFrame, from_=1, to_=9, width=5)
+        #self.lineCount.pack(anchor="nw", padx=5, ipady=1)
 
+        # Create the search button (Button object) and adding it the searchButton variable
+        
         self.searchButton = tk.Button(
-            self.leftFrame, text="Search", command=self.search_input, width=7, bg="#212124", fg="#FAF9F6"
+            self.leftFrame, text="Search", command=self.search_input, width=7, highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.searchButton.pack(anchor="nw", padx=5, pady=10)
 
         # Create the date button (Button Object) and assign it the dateButton variable
         self.dateButton = tk.Button(
-            self.leftFrame, text="Date", command=self.show_date, width=7, bg="#212124", fg="#FAF9F6"
+            self.leftFrame, text="Date", command=self.show_date, width=7, highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.dateButton.pack(anchor="nw", padx=5)
-        self.current_date_label = tk.Label(self.leftFrame, text=self.date, bg="#212124", fg="#FAF9F6")
-        self.current_date_label.pack()
+        
+        self.current_date_label = tk.Label(self.leftFrame, text=None, highlightbackground="#212124", bg="#212124", fg="#FAF9F6")
+        self.current_date_label.pack(anchor='e', padx=50)
 
         self.errorsButton = tk.Button(
-            self.bottomLeftFrame, text="Compile Errors", command=self.init_compiler, width=10, bg='blue'
+            self.bottomLeftFrame, text="Compile Errors", command=self.init_compiler, width=12, highlightbackground="#2c6fbb",bg='#2c6fbb'
         )
-        self.errorsButton.pack(anchor='nw')
+        self.errorsButton.pack(anchor='e')
 
     def start(self):
         self.root.mainloop()
@@ -155,10 +164,16 @@ class MyGUI:
             words = filter_by_date(words, from_date, to_date)
             # self.concatenated_file = words
 
+        #TODO: Create function that highlights existing text in outputBox using highlight_pattern 
+        search = self.get_search_box
+
         if type(words) is list:
             # insert the input from the input textbox (Entry object) at line 1, character 0
             for line in range(len(words)):
                 self.outputBox.insert(1.0, words[line])
+                #if search in line:
+                    #line.tag_configure("text", foreground="#f1e740")
+                    #line.highlight_pattern(search, "text")
             # Change the status of the text object to DISABLED (non editable)
             self.outputBox.configure(state=tk.DISABLED)
         elif type(words) is str:
@@ -170,6 +185,7 @@ class MyGUI:
             )
             # Change the status of the text object to DISABLED (non editable)
             self.outputBox.configure(state=tk.DISABLED)
+
     def reset(self):
         self.outputBox.configure(state=tk.NORMAL)
         self.concatenated_file = self.default_file
@@ -196,39 +212,45 @@ class MyGUI:
             date_pattern="yyyy-mm-dd",
         )
 
-        self.to_frame = tk.Frame(self.leftFrame, bg="#212124")
-        self.to_label = tk.Label(self.to_frame, text="To")
+        self.to_frame = tk.Frame(self.leftFrame, bg="#212124", width=10)
+        self.to_label = tk.Label(self.from_frame, text="To")
         self.to_date = DateEntry(
-            self.to_frame,
+            self.from_frame,
             showweeknumbers=False,
             showothermonthdays=False,
             date_pattern="yyyy-mm-dd",
         )
 
+
+        self.submit_frame = tk.Frame(self.from_frame, bg="#212124", width=10)
         self.submit_button = tk.Button(
-            self.to_frame, text="Submit", command=self.get_date_range
+            self.from_frame, text="Submit", command=self.get_date_range, height=1, highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
 
-        self.from_frame.pack(anchor="nw", padx=5, side="left")
-        self.from_label.pack(anchor="w", padx=2, side='left')
-        self.from_date.pack(padx=2, side='left')
-        self.to_frame.pack(anchor="ne", padx=5, side="left")
-        self.to_label.pack(anchor="w", side='left')
-        self.to_date.pack(anchor="w", side='left')
-        self.submit_button.pack(anchor="w")
+        self.from_frame.pack(anchor="nw", padx=2, side="left")
+        self.from_label.pack(anchor="w", padx=1, side='left')
+        self.from_date.pack(anchor='w', padx=1, side='left')
+
+        #self.to_frame.pack(anchor="ne", padx=2, side="left")
+        self.to_label.pack(anchor="w", padx=1, side='left')
+        self.to_date.pack(anchor="w", padx=1, side='left')
+
+        #self.submit_frame.pack(anchor="nw", padx=5)
+        self.submit_button.pack(anchor="w", padx=2, side='left')
 
     def get_date_range(self):
         self.dateButton.configure(state=tk.NORMAL)
         self.date = self.from_date.get_date(), "to", self.to_date.get_date()
         self.from_frame.destroy()
         self.to_frame.destroy()
+        self.submit_frame.destroy()
         self.update_shown_date()
         self.display_output_box(self.concatenated_file, self.date[0], self.date[2])
 
     def update_shown_date(self):
         self.current_date_label.destroy()
-        self.current_date_label = tk.Label(self.leftFrame, text=self.date)
-        self.current_date_label.pack()
+        self.current_date_label = tk.Label(self.leftFrame, text=self.date, highlightbackground="#212124", bg="#212124", fg="#FAF9F6")
+        self.current_date_label.pack(anchor='e')
 
     def open_file(self):
         file_object = tk.filedialog.askopenfilenames()
@@ -253,12 +275,13 @@ class MyGUI:
             self.concatenated_file = concatenated_file
             self.default_file = concatenated_file
             self.display_output_box(self.concatenated_file, None, None)
+    
 
     def search_input(self, event=None):
-        text = self.get_search_box()
+        search = self.get_search_box()
         file = self.concatenated_file
-
-        searched_file = search_file(text, file)
+        
+        searched_file = search_file(search, file)
 
         if self.date[0] == "Any" and self.date[2] == "Any":
             self.display_output_box(searched_file, None, None)
@@ -266,7 +289,7 @@ class MyGUI:
             self.display_output_box(searched_file, self.date[0], self.date[2])
 
         print("search", searched_file)
-
+ 
     def init_compiler(self):
         self.errorsButton.configure(command=self.destroy_event_compiler)
         button_names, lines = compile_events(self.concatenated_file)
@@ -425,19 +448,41 @@ def calculate_date_difference(from_date, to_date):
     return list_of_dates
 
 
-def search_file(search_param, file_contents):
+def search_file(search_param, lines):
     # Store search input.
     new_list = list()
     search_param = search_param
-    file_contents = file_contents
+    lines = lines
 
     # Loop through each line in the list.
-    for index,line in enumerate(file_contents):
-        if search_param in line:
+    for line in lines:
+        if search_param.casefold() in line.casefold():
             new_list.append(line)
 
     return new_list
 
+def highlight_pattern(self, pattern, tag, start="1.0", end="end",
+                          regexp=False):
+    '''Apply the given tag to all text that matches the given pattern
+
+    If 'regexp' is set to True, pattern will be treated as a regular
+    expression according to Tcl's regular expression syntax.
+    '''
+    start = self.index(start)
+    end = self.index(end)
+    self.mark_set("matchStart", start)
+    self.mark_set("matchEnd", start)
+    self.mark_set("searchLimit", end)
+
+    count = tk.IntVar()
+    while True:
+        index = self.search(pattern, "matchEnd","searchLimit",
+                            count=count, regexp=regexp)
+        if index == "": break
+        if count.get() == 0: break # degenerate pattern which matches zero-length strings
+        self.mark_set("matchStart", index)
+        self.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
+        self.tag_add(tag, "matchStart", "matchEnd")
 
 # Call on the import_default_dir function. Assign the two return values to directory and conc file. Note that at the moment, the value for directory
 # is not used, but may become useful in the future.
