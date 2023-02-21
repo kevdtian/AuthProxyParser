@@ -3,11 +3,12 @@ import tkinter.ttk as ttk
 from functools import partial
 from tkinter import filedialog
 from tkinter import scrolledtext
+from tkinter import Scrollbar
 from tkcalendar import DateEntry
 import os
 from datetime import datetime, timedelta
 
-class CustomScrolledText(tk.scrolledtext.ScrolledText):
+class CustomText(tk.Text):
     '''A scrolledtext widget with a new method, highlight_pattern()
 
     example:
@@ -20,7 +21,7 @@ class CustomScrolledText(tk.scrolledtext.ScrolledText):
         tk.Text.__init__(self, *args, **kwarg)
 
     def highlight_pattern(self, pattern, tag, start="1.0", end="end",
-                          regexp=False):
+                          regexp=True):
         '''Apply the given tag to all text that matches the given pattern
 
         If 'regexp' is set to True, pattern will be treated as a regular
@@ -34,7 +35,7 @@ class CustomScrolledText(tk.scrolledtext.ScrolledText):
 
         count = tk.IntVar()
         while True:
-            index = self.search(pattern, "matchEnd","searchLimit",
+            index = self.search(pattern, "matchEnd","searchLimit", nocase=True,
                                 count=count, regexp=regexp)
             if index == "": break
             if count.get() == 0: break # degenerate pattern which matches zero-length strings
@@ -43,11 +44,14 @@ class CustomScrolledText(tk.scrolledtext.ScrolledText):
             self.tag_add(tag, "matchStart", "matchEnd")
 
 class MyGUI(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self):
         """Initializes the main frame of the GUI and populates it with the appropriate objects
         args: None
         return:none
         """
+        self.createWidgets()
+
+    def createWidgets(self):
         self.date = "Any", "to", "Any"
         self.concatenated_file = None
         self.default_file = None
@@ -62,7 +66,7 @@ class MyGUI(tk.Frame):
         self.submit_frame = None
         self.name = None
         # Create the main frame and assign it the root variable
-        tk.Frame.__init__(self, master)
+
         self.root = tk.Tk()
         # Set the resolution and center root
         w = 1280
@@ -141,7 +145,10 @@ class MyGUI(tk.Frame):
         self.textbox.pack(anchor="n", expand=False, fill="x", padx=5)
 
         # Create a text object box with the appropriate sizing. Set the status to disabled (non-editable)
-        self.outputBox = CustomScrolledText(
+        self.scrollBar = Scrollbar(self.bottomRightFrame, orient='vertical', bg="#212124", troughcolor="#212124", highlightbackground="#212124", jump=0)
+        self.scrollBar.pack(side='right', fill='y')
+        
+        self.outputBox = CustomText(
             self.bottomRightFrame,
             width=50,
             font=("Arial", 12),
@@ -149,8 +156,9 @@ class MyGUI(tk.Frame):
             state=tk.DISABLED,
             bg="#212124",
             fg="#FAF9F6",
+            yscrollcommand=self.scrollBar.set
         )
-        
+        self.scrollBar.config(command=self.outputBox.yview)
         # Pack the Text object
         self.outputBox.pack(expand=True, fill="both", side="left", anchor="w", padx=1, pady=1)
         # Create quitButton (Button Object) for the quit button. Assign frame,text, command, and pack it.
@@ -184,6 +192,7 @@ class MyGUI(tk.Frame):
         )
         self.errorsButton.pack(anchor='e')
 
+
     def start(self):
         self.root.mainloop()
 
@@ -201,7 +210,7 @@ class MyGUI(tk.Frame):
             # self.concatenated_file = words
 
         #TODO: Create function that highlights existing text in outputBox using highlight_pattern 
-        search = self.get_search_box()
+        search = self.get_search_box().casefold()
 
         if type(words) is list:
 
@@ -209,7 +218,7 @@ class MyGUI(tk.Frame):
             for line in range(len(words)):
 
                 if search.casefold() in str(words[line]).casefold() and search.casefold() != '':
-                    self.outputBox.insert(1.0, words[line], 'text')
+                    self.outputBox.insert(1.0, words[line])
                     self.outputBox.tag_configure("text", foreground="#f1e740")
                     self.outputBox.highlight_pattern(search, "text")
 
@@ -217,7 +226,7 @@ class MyGUI(tk.Frame):
                     self.outputBox.insert(1.0, words[line])
                     
             # Change the status of the text object to DISABLED (non editable)
-            self.outputBox.configure(state=tk.Norma)
+            self.outputBox.configure(state=tk.DISABLED)
 
         elif type(words) is str:
             self.outputBox.insert(1.0, words)
@@ -384,9 +393,9 @@ def import_default_dir():
     args: None
     return: str, directory that has the proxy logs. File Object, the concatenated files from the log directory
     """
-    program_files = "C:\Program Files\Duo Security Authentication proxy\Log\""
-    program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
-    # program_files = "D:\Work\Coding\AuthProxyLogParser\'"
+    #program_files = "C:\Program Files\Duo Security Authentication proxy\Log\""
+    #program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
+    program_files = "D:/Work/Coding/AuthProxyLogParser/authproxytest/"
     program_files_x86 = r"C:\Program Files x86\Duo Security Authentication proxy\Log\'"
 
     if os.path.exists(program_files):
