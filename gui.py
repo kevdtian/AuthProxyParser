@@ -1,8 +1,7 @@
 import tkinter as tk
-import tkinter.ttk as ttk
+import webbrowser
 from functools import partial
 from tkinter import filedialog
-from tkinter import scrolledtext
 from tkinter import Scrollbar
 from tkinter import Toplevel
 from tkinter import Label
@@ -13,9 +12,7 @@ from datetime import datetime, timedelta
 
 class CustomText(tk.Text):
     '''A scrolledtext widget with a new method, highlight_pattern()
-
     example:
-
     text = CustomText()
     text.tag_configure("red", foreground="#ff0000")
     text.highlight_pattern("this should be red", "red")
@@ -26,7 +23,6 @@ class CustomText(tk.Text):
     def highlight_pattern(self, pattern, tag, start="1.0", end="end",
                           regexp=True):
         '''Apply the given tag to all text that matches the given pattern
-
         If 'regexp' is set to True, pattern will be treated as a regular
         expression according to Tcl's regular expression syntax.
         '''
@@ -101,7 +97,7 @@ class MyGUI(tk.Frame):
 
         self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="red")
 
-        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="blue")
+        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275,width=250, bg="blue")
 
         # Create the reset button
         self.reset_button = tk.Button(self.rightFrame, text="Reset to Default", command=self.reset,
@@ -137,7 +133,7 @@ class MyGUI(tk.Frame):
 
         # Create a text object box with the appropriate sizing. Set the status to disabled (non-editable)
         self.scrollBar = Scrollbar(self.bottomRightFrame, orient='vertical', bg="#212124", troughcolor="#212124",
-                                   highlightbackground="#212124", jump=0)
+                                   highlightbackground="#212124", jump=0,)
 
         self.outputBox = CustomText(
             self.bottomRightFrame,
@@ -372,7 +368,7 @@ class MyGUI(tk.Frame):
         self.compileFrameLeft.pack(side='left', fill='x', anchor='e', pady=10)
         self.compileFrameRight.pack(side='right', fill='x', anchor='w')
         button_names, lines, kbs = compile_events(self.concatenated_file)
-        print(kbs)
+
         for index in range(len(button_names)):
             if len(lines[index]) > 0:
                 self.name = tk.Button(self.compileFrameLeft,
@@ -381,16 +377,16 @@ class MyGUI(tk.Frame):
                 self.name.pack()
                 if len(kbs[index]) > 0:
                     self.kb = tk.Button(self.compileFrameRight,
-                                          command=None,
-                                          text=kbs[index], width=30)
+                                          command=partial(open_page, kbs[index][1]),
+                                          text=kbs[index][0], width=30)
                     self.kb.pack()
 
     def destroy_event_compiler(self):
         self.errorsButton.configure(command=self.init_compiler)
         self.compileFrameRight.destroy()
         self.compileFrameLeft.destroy()
-        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="red")
-        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="blue")
+        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, bg="red")
+        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, bg="blue")
         '''objects_in_frame = self.compileFrameLeftLeftFrame.winfo_children()
         kbs_in_frame = self.compileFrameLeftLeftFrame.winfo_children()
         for obj in objects_in_frame:
@@ -398,56 +394,56 @@ class MyGUI(tk.Frame):
                 obj.destroy()
             elif obj.cget('text') == 'Compile Errors':
                 obj.configure(command=self.init_compiler)
-
 '''
 def compile_events(conc_file):
     # The dictionary format is: {KEY(str)    name of button:
     #                           VALUE(list)      [(error strs),[line log file]]}
-    events_dic = {'Successful Authentication': (('Success, Logging you in',), [], (" ")),
-                  'Incorrect Password': (('invalidCredentials', 'data 52e',), [], (" ")),
-                  'Invalid SKEY': (('Invalid SKEY',), [], ('Check the Skey')),
+    events_dic = {'Successful Authentication': (('Success, Logging you in',), [], ()),
+                  'Incorrect Password': (('invalidCredentials', 'data 52e',), [], ()),
+                  'Invalid SKEY': (('Invalid SKEY',), [], ('Check the Skey','https://help.duo.com/s/article/')),
                   'No User LDAP permission': (('data 531',), [], ('Bad user worstation permission')),
-                  'Auth Proxy Start': (('Duo Security Authentication Proxy', 'Init Complete',), [], (" ")),
-                  'Disabled AD User': (('data 533', 'data534'), [], (" ")),
-                  'Locked AD Account': (('data 775',), [], (" ")),
+                  'Auth Proxy Start': (('Duo Security Authentication Proxy', 'Init Complete',), [], ('')),
+                  'Disabled AD User': (('data 533', 'data534'), [], ()),
+                  'Locked AD Account': (('data 775',), [], ()),
                   'Service Account no bind': (('Error sending AD auth request', 'invalid Credentials,',),
                                                            [], ('test3')),
                   'Bind after disconnect': (
-                      ('Attempt to bindRequest multiple times in the same LDAP connection',), [], (" ")),
-                  'Invalid RADIUS IP': (('dropping packet', 'Unknown Client',), [], (" ")),
-                  'Shared secret mismatch': (('Cannot decode password',), [], (" ")),
-                  'Invalid encrypted secret': (('Invalid secret',), [], (" ")),
+                      ('Attempt to bindRequest multiple times in the same LDAP connection',), [], ()),
+                  'Invalid RADIUS IP': (('dropping packet', 'Unknown Client',), [], ()),
+                  'Shared secret mismatch': (('Cannot decode password',), [], ()),
+                  'Invalid encrypted secret': (('Invalid secret',), [], ()),
                   'Primary auth disconnect': (('User timeout caused connection failure',),
-                                                                         [], (" ")),
-                  'DNS failing': (('DNS lookup failed',), [], (" ")),
+                                                                         [], ()),
+                  'DNS failing': (('DNS lookup failed',), [], ()),
                   'DNS failing secure': (
-                      ('DNSLookupError', 'Denied Duo login on preauth failure'), [], (" ")),
+                      ('DNSLookupError', 'Denied Duo login on preauth failure'), [], ()),
                   'Cloud unreachable TCP': (
-                      ('TCPTimedOutError', 'allowed Duo login on preauth failure'), [], (" ")),
-                  'Invalid protected SKEY': (('CryptUnprotectData', 'The data is invalid',), [], (" ")),
-                  'Invalid IKEY': (('Invalid integration key in request credentials', '40102'), [], (" ")),
-                  'Invalid private key file': (('Could not open private key file',), [], (" ")),
+                      ('TCPTimedOutError', 'allowed Duo login on preauth failure'), [], ()),
+                  'Invalid protected SKEY': (('CryptUnprotectData', 'The data is invalid',), [], ()),
+                  'Invalid IKEY': (('Invalid integration key in request credentials', '40102'), [], ()),
+                  'Invalid private key file': (('Could not open private key file',), [], ()),
                   'User not in sec group': (
-                      ('Tried to search security group DN for object sid but it could not be found',), [], (" ")),
-                  'User not enrolled block': (('enroll', 'enrolled'), [], (" ")),
-                  'No reply from user': (('Login timed out',), [], (" ")),
-                  'User not enrolled pass': (('Allowing unknown user',), [], (" ")),
-                  'Plain auth required': (('0xA3',), [], (" ")),
+                      ('Tried to search security group DN for object sid but it could not be found',), [], ()),
+                  'User not enrolled block': (('enroll', 'enrolled'), [], ()),
+                  'No reply from user': (('Login timed out',), [], ()),
+                  'User not enrolled pass': (('Allowing unknown user',), [], ()),
+                  'Plain auth required': (('0xA3',), [], ()),
                   'Bad RADIUS protocol': (
-                      ('Missing or improperly formatted password',), [], (" ")),
-                  'User not found': (('data 525',), [], (" ")),
-                  'User PW Expired': (('data 532',), [], (" ")),
-                  'User PW Reset': (('data 773',), [], (" ")),
-                  'unlike hosts AD sync': (('sections must have the exact same',), [], (" ")),
-                  'NTLMv2 disabled on DC': (('data 1',), [], (" ")),
-                  'Invalid mail attribute': (('Invalid LDAP filter',), [], (" "))
+                      ('Missing or improperly formatted password',), [], ()),
+                  'User not found': (('data 525',), [], ()),
+                  'User PW Expired': (('data 532',), [], ()),
+                  'User PW Reset': (('data 773',), [], ()),
+                  'unlike hosts AD sync': (('sections must have the exact same',), [], ()),
+                  'NTLMv2 disabled on DC': (('data 1',), [], ()),
+                  'Invalid mail attribute': (('Invalid LDAP filter',), [], ())
                   }
 
-    for line in conc_file:
-        for values in events_dic.values():
-            for search_str in values[0]:
-                if search_str.lower() in line.lower():
-                    values[1].append(line)
+    if conc_file:
+        for line in conc_file:
+            for values in events_dic.values():
+                for search_str in values[0]:
+                    if search_str.lower() in line.lower():
+                        values[1].append(line)
 
     error_lines = [error[1] for error in events_dic.values()]
     kb_lines = [kb[2] for kb in events_dic.values()]
@@ -584,7 +580,8 @@ def search_file(search_param, lines):
 
     return new_list
 
-
+def open_page(page):
+    webbrowser.open(page)
 
 # Call on the import_default_dir function. Assign the two return values to directory and conc file. Note that at the moment, the value for directory
 # is not used, but may become useful in the future.
