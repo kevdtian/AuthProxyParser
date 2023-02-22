@@ -104,12 +104,12 @@ class MyGUI(tk.Frame):
 
         # Create the text above output field (Label Object) and add it the label variable
         self.reset_button = tk.Button(
-            self.rightFrame, text="Reset to Default", command=self.reset, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            self.rightFrame, text="Reset to Default", command=self.reset, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
         )
         self.reset_button.pack(side="left", anchor="w", pady=5)
 
         self.choose_file = tk.Button(
-            self.rightFrame, text="Choose File", command=self.open_file, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            self.rightFrame, text="Choose File", command=self.open_file, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
         )
         self.choose_file.pack(side="left", anchor="w", padx=5)
 
@@ -174,13 +174,13 @@ class MyGUI(tk.Frame):
         # Create the search button (Button object) and adding it the searchButton variable
         
         self.searchButton = tk.Button(
-            self.leftFrame, text="Search", command=self.search_input, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            self.leftFrame, text="Search", command=self.search_input, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
         )
         self.searchButton.pack(anchor="nw", padx=5, pady=10)
 
         # Create the date button (Button Object) and assign it the dateButton variable
         self.dateButton = tk.Button(
-            self.leftFrame, text="Date", command=self.show_date, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            self.leftFrame, text="Date", command=self.show_date, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
         )
         self.dateButton.pack(anchor="nw", padx=5)
         
