@@ -301,9 +301,10 @@ class MyGUI(tk.Frame):
         )
 
 
-        self.submit_frame = tk.Frame(self.from_frame, bg="#212124", width=10)
+        self.
+        _frame = tk.Frame(self.from_frame, bg="#212124", width=10)
         self.submit_button = tk.Button(
-            self.from_frame, text="Submit", command=self.get_date_range, height=1, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            self.from_frame, text="Submit", command=self.get_date_range, height=1, bg="white"
         )
 
         self.from_frame.pack(anchor="nw", padx=2, side="left")
