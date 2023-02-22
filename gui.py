@@ -122,7 +122,7 @@ class MyGUI(tk.Frame):
         self.textboxLabel = tk.Label(
             self.leftFrame,
             text="Search string:",
-            font=("Arial", 17),
+            font=("Arial", 10, 'bold'),
             bg="#212124",
             fg="#FAF9F6",
         )
@@ -141,7 +141,7 @@ class MyGUI(tk.Frame):
         self.outputBox = CustomText(
             self.bottomRightFrame,
             width=50,
-            font=("Arial", 12),
+            font=("Arial", 10),
             wrap="word",
             state=tk.DISABLED,
             bg="#212124",
@@ -181,15 +181,15 @@ class MyGUI(tk.Frame):
         self.rightFrame.pack(ipady=5, ipadx=5, side="left", expand=True, fill="both")
         self.bottomRightFrame.pack(ipady=5, ipadx=5, side="bottom", expand=True, fill="both")
         self.bottomLeftFrame.pack(ipady=5, ipadx=5, side="bottom", fill='both', expand=True)
-        self.reset_button.pack(side="left", anchor="w")
-        self.choose_file.pack(side="left", anchor="w", padx=5)
+        self.reset_button.pack(side="left", anchor="w", padx=2)
+        self.choose_file.pack(side="left", anchor="w", padx=2)
         self.label.grid(row=30, column=2)
         self.textboxLabel.pack(anchor="nw", padx=5)
         self.textbox.pack(anchor="n", expand=False, fill="x", padx=5)
         self.scrollBar.pack(side='right', fill='y')
         self.outputBox.pack(expand=True, fill="both", side="left", anchor="w", padx=1, pady=1)
         self.quitButton.pack(side="bottom", anchor="sw", before=self.bottomLeftFrame)
-        self.searchButton.pack(anchor="nw", padx=5, pady=10)
+        self.searchButton.pack(anchor="nw", padx=5, pady=4)
         self.dateButton.pack(anchor="nw", padx=5)
         self.current_date_label.pack(anchor='w', padx=50)
         self.errorsButton.pack(anchor='e')
@@ -345,7 +345,7 @@ class MyGUI(tk.Frame):
         for file in encoded:
             file.close()
         try:
-            datetime.strptime(concatenated_file[0][11:16], "%m-%d")
+            datetime.strptime(concatenated_file[0][10:15], "%m-%d")
 
         except ValueError:
             self.display_output_box("Incorrect proxy log file", None, None)
@@ -528,7 +528,7 @@ def merge_files(files):
 
     for file in files:
         for index,line in enumerate(file.readlines()):
-            return_list.append(str(index+1)+'   | '+line)
+            return_list.append(str(index+1)+'   |'+line)
         return_list.append(f'\n------End of {file.name} File------\n')
     return return_list
 
@@ -537,18 +537,10 @@ def filter_by_date(lines, from_date, to_date):
     dates = calculate_date_difference(from_date, to_date)
     dates_list = convert_from_datetime_to_str(dates)
     filtered_list = list()
-    '''if lines:
-        for line in lines:
-            if line[0:10] in dates_list or line[0:5] == " ":
-                filtered_list.append(line)'''
     if lines:
         for line in lines:
-            sep = line.find('| ')
-            nonDatedLines = line[sep+2:sep+4]
-            datedLines = line[sep+2:sep+12]
-            if datedLines in dates_list or nonDatedLines.isspace():
+            if line[0:10] in dates_list or line[0:5] == " ":
                 filtered_list.append(line)
-
     return filtered_list
 
 
