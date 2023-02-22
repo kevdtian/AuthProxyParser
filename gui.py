@@ -4,6 +4,9 @@ from functools import partial
 from tkinter import filedialog
 from tkinter import scrolledtext
 from tkinter import Scrollbar
+from tkinter import Toplevel
+from tkinter import Label
+from tkinter import Button
 from tkcalendar import DateEntry
 import os
 from datetime import datetime, timedelta
@@ -104,12 +107,12 @@ class MyGUI(tk.Frame):
 
         # Create the text above output field (Label Object) and add it the label variable
         self.reset_button = tk.Button(
-            self.rightFrame, text="Reset to Default", command=self.reset, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
+            self.rightFrame, text="Reset to Default", command=self.reset, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.reset_button.pack(side="left", anchor="w", pady=5)
 
         self.choose_file = tk.Button(
-            self.rightFrame, text="Choose File", command=self.open_file, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
+            self.rightFrame, text="Choose File", command=self.open_file, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.choose_file.pack(side="left", anchor="w", padx=5)
 
@@ -174,18 +177,18 @@ class MyGUI(tk.Frame):
         # Create the search button (Button object) and adding it the searchButton variable
         
         self.searchButton = tk.Button(
-            self.leftFrame, text="Search", command=self.search_input, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
+            self.leftFrame, text="Search", command=self.search_input, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.searchButton.pack(anchor="nw", padx=5, pady=10)
 
         # Create the date button (Button Object) and assign it the dateButton variable
         self.dateButton = tk.Button(
-            self.leftFrame, text="Date", command=self.show_date, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#fcfcff"
+            self.leftFrame, text="Date", command=self.show_date, width=7, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
         )
         self.dateButton.pack(anchor="nw", padx=5)
         
         self.current_date_label = tk.Label(self.leftFrame, text=None, highlightcolor="#212124", highlightbackground="#212124", bg="#212124", fg="#FAF9F6")
-        self.current_date_label.pack(anchor='e', padx=50)
+        self.current_date_label.pack(anchor='w', padx=1)
 
         self.errorsButton = tk.Button(
             self.bottomLeftFrame, text="Compile Errors", command=self.init_compiler, width=12, highlightcolor="#2c6fbb", highlightbackground="#2c6fbb",bg='#2c6fbb'
@@ -195,6 +198,19 @@ class MyGUI(tk.Frame):
 
     def start(self):
         self.root.mainloop()
+
+    def popup(self):
+        top = Toplevel(self.root, bg="#212124")
+        w=320
+        h=100
+        ws = self.root.winfo_screenwidth()
+        hs = self.root.winfo_screenheight()
+        x = (ws / 2) - (w / 2)
+        y = (hs / 2) - (h / 2)
+        top.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        top.grab_set()
+        Label(top, wraplength=300, bg="#212124", fg="#FAF9F6", text="Too many results found. Displaying first 100 events. Please refine your search.", font=("Arial")).place(x=20,y=10)
+        Button(top, text="Close", command=top.destroy, width=6, font=("Arial")).place(x=126,y=55)
 
     def display_output_box(self, words, from_date, to_date):
         """Inserts/prints the values entered into textbox into the output box. Changes the status of the outputBox to normal, enters the value, then changes the
@@ -208,21 +224,28 @@ class MyGUI(tk.Frame):
         if from_date and to_date:
             words = filter_by_date(words, from_date, to_date)
             # self.concatenated_file = words
-
-        #TODO: Create function that highlights existing text in outputBox using highlight_pattern 
+        
         search = self.get_search_box().casefold()
-
+        count = 0
         if type(words) is list:
 
             # insert the input from the input textbox (Entry object) at line 1, character 0
             for line in range(len(words)):
+                
+                # Define threshold for number of search returns as 100
+                if count >= 100:
+                    self.popup()
+                    break
 
-                if search.casefold() in str(words[line]).casefold() and search.casefold() != '':
+                elif search.casefold() in str(words[line]).casefold() and search.casefold() != '':
+
                     self.outputBox.insert(1.0, words[line])
                     self.outputBox.tag_configure("text", foreground="#f1e740")
                     self.outputBox.highlight_pattern(search, "text")
+                    count += 1
 
                 else:
+                    
                     self.outputBox.insert(1.0, words[line])
                     
             # Change the status of the text object to DISABLED (non editable)
@@ -305,7 +328,7 @@ class MyGUI(tk.Frame):
     def update_shown_date(self):
         self.current_date_label.destroy()
         self.current_date_label = tk.Label(self.leftFrame, text=self.date, highlightcolor="#212124",  highlightbackground="#212124", bg="#212124", fg="#FAF9F6")
-        self.current_date_label.pack(anchor='e')
+        self.current_date_label.pack(anchor='w', padx=1)
 
     def open_file(self):
         file_object = tk.filedialog.askopenfilenames()
