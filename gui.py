@@ -10,6 +10,7 @@ from tkcalendar import DateEntry
 import os
 from datetime import datetime, timedelta
 
+
 class CustomText(tk.Text):
     '''A scrolledtext widget with a new method, highlight_pattern()
     example:
@@ -17,7 +18,8 @@ class CustomText(tk.Text):
     text.tag_configure("red", foreground="#ff0000")
     text.highlight_pattern("this should be red", "red")
     '''
-    def __init__(self, *args, **kwarg,):
+
+    def __init__(self, *args, **kwarg, ):
         tk.Text.__init__(self, *args, **kwarg)
 
     def highlight_pattern(self, pattern, tag, start="1.0", end="end",
@@ -34,13 +36,14 @@ class CustomText(tk.Text):
 
         count = tk.IntVar()
         while True:
-            index = self.search(pattern, "matchEnd","searchLimit", nocase=True,
+            index = self.search(pattern, "matchEnd", "searchLimit", nocase=True,
                                 count=count, regexp=regexp)
             if index == "": break
-            if count.get() == 0: break # degenerate pattern which matches zero-length strings
+            if count.get() == 0: break  # degenerate pattern which matches zero-length strings
             self.mark_set("matchStart", index)
             self.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
             self.tag_add(tag, "matchStart", "matchEnd")
+
 
 class MyGUI(tk.Frame):
     def __init__(self):
@@ -95,9 +98,9 @@ class MyGUI(tk.Frame):
         # Create the bottom left frame inside of the left frame and assign it the rightFrame variable
         self.bottomLeftFrame = tk.Frame(self.leftFrame, width=50, height=275, bg="#212124")
 
-        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="red")
+        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, width=250, )
 
-        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275,width=250, bg="blue")
+        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, width=250, )
 
         # Create the reset button
         self.reset_button = tk.Button(self.rightFrame, text="Reset to Default", command=self.reset,
@@ -133,7 +136,7 @@ class MyGUI(tk.Frame):
 
         # Create a text object box with the appropriate sizing. Set the status to disabled (non-editable)
         self.scrollBar = Scrollbar(self.bottomRightFrame, orient='vertical', bg="#212124", troughcolor="#212124",
-                                   highlightbackground="#212124", jump=0,)
+                                   highlightbackground="#212124", jump=0, )
 
         self.outputBox = CustomText(
             self.bottomRightFrame,
@@ -196,16 +199,18 @@ class MyGUI(tk.Frame):
 
     def popup(self):
         top = Toplevel(self.root, bg="#212124")
-        w=320
-        h=100
+        w = 320
+        h = 100
         ws = self.root.winfo_screenwidth()
         hs = self.root.winfo_screenheight()
         x = (ws / 2) - (w / 2)
         y = (hs / 2) - (h / 2)
         top.geometry('%dx%d+%d+%d' % (w, h, x, y))
         top.grab_set()
-        Label(top, wraplength=300, bg="#212124", fg="#FAF9F6", text="Too many results found. Displaying first 100 events. Please refine your search.", font=("Arial")).place(x=20,y=10)
-        Button(top, text="Close", command=top.destroy, width=6, font=("Arial")).place(x=126,y=55)
+        Label(top, wraplength=300, bg="#212124", fg="#FAF9F6",
+              text="Too many results found. Displaying first 100 events. Please refine your search.",
+              font=("Arial")).place(x=20, y=10)
+        Button(top, text="Close", command=top.destroy, width=6, font=("Arial")).place(x=126, y=55)
 
     def display_output_box(self, words, from_date, to_date):
         """Inserts/prints the values entered into textbox into the output box. Changes the status of the outputBox to normal, enters the value, then changes the
@@ -296,7 +301,6 @@ class MyGUI(tk.Frame):
             date_pattern="yyyy-mm-dd",
         )
 
-
         self.submit_frame = tk.Frame(self.from_frame, bg="#212124", width=10)
         self.submit_button = tk.Button(
             self.from_frame, text="Submit", command=self.get_date_range, height=1, bg="white"
@@ -306,11 +310,11 @@ class MyGUI(tk.Frame):
         self.from_label.pack(anchor="w", padx=1, side='left')
         self.from_date.pack(anchor='w', padx=1, side='left')
 
-        #self.to_frame.pack(anchor="ne", padx=2, side="left")
+        # self.to_frame.pack(anchor="ne", padx=2, side="left")
         self.to_label.pack(anchor="w", padx=1, side='left')
         self.to_date.pack(anchor="w", padx=1, side='left')
 
-        #self.submit_frame.pack(anchor="nw", padx=5)
+        # self.submit_frame.pack(anchor="nw", padx=5)
         self.submit_button.pack(anchor="w", padx=2, side='left')
 
     def get_date_range(self):
@@ -324,7 +328,8 @@ class MyGUI(tk.Frame):
 
     def update_shown_date(self):
         self.current_date_label.destroy()
-        self.current_date_label = tk.Label(self.leftFrame, text=self.date, highlightcolor="#212124",  highlightbackground="#212124", bg="#212124", fg="#FAF9F6")
+        self.current_date_label = tk.Label(self.leftFrame, text=self.date, highlightcolor="#212124",
+                                           highlightbackground="#212124", bg="#212124", fg="#FAF9F6")
         self.current_date_label.pack(anchor='w', padx=1)
 
     def open_file(self):
@@ -340,7 +345,8 @@ class MyGUI(tk.Frame):
         for file in encoded:
             file.close()
         try:
-            datetime.strptime(concatenated_file[0][0:10], "%Y-%m-%d")
+            datetime.strptime(concatenated_file[0][10:15], "%m-%d")
+
         except ValueError:
             self.display_output_box("Incorrect proxy log file", None, None)
         except IndexError:
@@ -350,7 +356,6 @@ class MyGUI(tk.Frame):
             self.concatenated_file = concatenated_file
             self.default_file = concatenated_file
             self.display_output_box(self.concatenated_file, None, None)
-
 
     def search_input(self, event=None):
         search = self.get_search_box()
@@ -377,16 +382,16 @@ class MyGUI(tk.Frame):
                 self.name.pack()
                 if len(kbs[index]) > 0:
                     self.kb = tk.Button(self.compileFrameRight,
-                                          command=partial(open_page, kbs[index][1]),
-                                          text=kbs[index][0], width=30)
+                                        command=partial(open_page, kbs[index][1]),
+                                        text=kbs[index][0], width=30)
                     self.kb.pack()
 
     def destroy_event_compiler(self):
         self.errorsButton.configure(command=self.init_compiler)
         self.compileFrameRight.destroy()
         self.compileFrameLeft.destroy()
-        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, bg="red")
-        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, bg="blue")
+        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, )
+        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, )
         '''objects_in_frame = self.compileFrameLeftLeftFrame.winfo_children()
         kbs_in_frame = self.compileFrameLeftLeftFrame.winfo_children()
         for obj in objects_in_frame:
@@ -395,6 +400,8 @@ class MyGUI(tk.Frame):
             elif obj.cget('text') == 'Compile Errors':
                 obj.configure(command=self.init_compiler)
 '''
+
+
 def compile_events(conc_file):
     # The dictionary format is: {KEY(str)    name of button:
     #                           VALUE(list)      [(error strs),[line log file]]}
@@ -450,6 +457,7 @@ def compile_events(conc_file):
 
     return list(events_dic.keys()), error_lines, kb_lines
 
+
 def import_default_dir():
     """Search through program files and program files x86. If the auth proxy directory is found in either, filter the log folder (to only include
     files that start with authproxy), open the files and concatenate them, then return the directory and file object. If nothing is found, return
@@ -457,8 +465,8 @@ def import_default_dir():
     args: None
     return: str, directory that has the proxy logs. File Object, the concatenated files from the log directory
     """
-    #program_files = "C:\Program Files\Duo Security Authentication proxy\Log\""
-    #program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
+    # program_files = "C:\Program Files\Duo Security Authentication proxy\Log\""
+    # program_files = '/Users/bsaleem/Desktop/git_stuff/authproxylog/'
     program_files = "D:/Work/Coding/AuthProxyLogParser/authproxytest/"
     program_files_x86 = r"C:\Program Files x86\Duo Security Authentication proxy\Log\'"
 
@@ -517,10 +525,11 @@ def merge_files(files):
     return: list. lines of concatenated files"""
     return_list = []
     files.reverse()
-    for file in files:
-        for line in file.readlines():
-            return_list.append(line)
 
+    for file in files:
+        for index,line in enumerate(file.readlines()):
+            return_list.append(str(index+1)+'   |'+line)
+        return_list.append(f'\n------End of {file.name} File------\n')
     return return_list
 
 
@@ -580,8 +589,13 @@ def search_file(search_param, lines):
 
     return new_list
 
+
 def open_page(page):
-    webbrowser.open(page)
+    if page:
+        webbrowser.open(page)
+    else:
+        None
+
 
 # Call on the import_default_dir function. Assign the two return values to directory and conc file. Note that at the moment, the value for directory
 # is not used, but may become useful in the future.
