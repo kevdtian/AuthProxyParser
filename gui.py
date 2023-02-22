@@ -194,6 +194,7 @@ class MyGUI(tk.Frame):
         self.dateButton.pack(anchor="nw", padx=5)
         self.current_date_label.pack(anchor='w', padx=50)
         self.errorsButton.pack(anchor='e')
+
     def start(self):
         self.root.mainloop()
 
@@ -368,8 +369,8 @@ class MyGUI(tk.Frame):
 
     def init_compiler(self):
         self.errorsButton.configure(command=self.destroy_event_compiler)
-        self.compileFrameLeft.pack(side='left', fill='x')
-        self.compileFrameRight.pack(side='right', fill='x')
+        self.compileFrameLeft.pack(side='left', fill='x', anchor='e', pady=10)
+        self.compileFrameRight.pack(side='right', fill='x', anchor='w')
         button_names, lines, kbs = compile_events(self.concatenated_file)
         print(kbs)
         for index in range(len(button_names)):
@@ -377,7 +378,7 @@ class MyGUI(tk.Frame):
                 self.name = tk.Button(self.compileFrameLeft,
                                       command=partial(self.display_output_box, lines[index], None, None),
                                       text=button_names[index], width=21)
-                self.name.pack(anchor='nw')
+                self.name.pack()
                 if len(kbs[index]) > 0:
                     self.kb = tk.Button(self.compileFrameRight,
                                           command=None,
