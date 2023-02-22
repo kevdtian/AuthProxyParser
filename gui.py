@@ -105,13 +105,11 @@ class MyGUI(tk.Frame):
 
         # Create the reset button
         self.reset_button = tk.Button(self.rightFrame, text="Reset to Default", command=self.reset,
-                                      highlightcolor="#212124", highlightbackground="#212124", bg="#212124",
-                                      fg="#FAF9F6")
+                                      highlightcolor="#212124", highlightbackground="#212124", bg="white")
 
         # Create the choose file button
         self.choose_file = tk.Button(self.rightFrame, text="Choose File", command=self.open_file,
-                                     highlightcolor="#212124", highlightbackground="#212124", bg="#212124",
-                                     fg="#FAF9F6")
+                                     highlightcolor="#212124", highlightbackground="#212124", bg="white")
 
         # Create the text inside the topFrame  (Label Object) and add it the label variable
         self.label = tk.Label(
@@ -156,19 +154,19 @@ class MyGUI(tk.Frame):
         # Create quitButton (Button Object) for the quit button. Assign frame,text, command, and pack it.
         self.quitButton = tk.Button(
             self.leftFrame, text="Quit", command=self.root.destroy, highlightcolor="#212124",
-            highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            highlightbackground="#212124", bg="white"
         )
 
         # Create the search button (Button object) and adding it the searchButton variable
         self.searchButton = tk.Button(
             self.leftFrame, text="Search", command=self.search_input, width=7, highlightcolor="#212124",
-            highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            highlightbackground="#212124", bg="white"
         )
 
         # Create the date button (Button Object) and assign it the dateButton variable
         self.dateButton = tk.Button(
             self.leftFrame, text="Date", command=self.show_date, width=7, highlightcolor="#212124",
-            highlightbackground="#212124", bg="#212124", fg="#FAF9F6"
+            highlightbackground="#212124", bg="white"
         )
 
         self.current_date_label = tk.Label(self.leftFrame, text=None, highlightcolor="#212124",
