@@ -99,9 +99,9 @@ class MyGUI(tk.Frame):
         # Create the bottom left frame inside of the left frame and assign it the rightFrame variable
         self.bottomLeftFrame = tk.Frame(self.leftFrame, width=50, height=275, bg="#212124")
 
-        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, bg="red")
+        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="red")
 
-        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, bg="blue")
+        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="blue")
 
         # Create the reset button
         self.reset_button = tk.Button(self.rightFrame, text="Reset to Default", command=self.reset,
@@ -389,8 +389,8 @@ class MyGUI(tk.Frame):
         self.errorsButton.configure(command=self.init_compiler)
         self.compileFrameRight.destroy()
         self.compileFrameLeft.destroy()
-        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, bg="red")
-        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, bg="blue")
+        self.compileFrameLeft = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="red")
+        self.compileFrameRight = tk.Frame(self.bottomLeftFrame, height=275, width=250, bg="blue")
         '''objects_in_frame = self.compileFrameLeftLeftFrame.winfo_children()
         kbs_in_frame = self.compileFrameLeftLeftFrame.winfo_children()
         for obj in objects_in_frame:
@@ -403,44 +403,44 @@ class MyGUI(tk.Frame):
 def compile_events(conc_file):
     # The dictionary format is: {KEY(str)    name of button:
     #                           VALUE(list)      [(error strs),[line log file]]}
-    events_dic = {'Successful Authentication': (('Success, Logging you in',), [], ()),
-                  'Incorrect Password': (('invalidCredentials', 'data 52e',), [], ()),
+    events_dic = {'Successful Authentication': (('Success, Logging you in',), [], (" ")),
+                  'Incorrect Password': (('invalidCredentials', 'data 52e',), [], (" ")),
                   'Invalid SKEY': (('Invalid SKEY',), [], ('Check the Skey')),
                   'No User LDAP permission': (('data 531',), [], ('Bad user worstation permission')),
-                  'Auth Proxy Start': (('Duo Security Authentication Proxy', 'Init Complete',), [], ('')),
-                  'Disabled AD User': (('data 533', 'data534'), [], ()),
-                  'Locked AD Account': (('data 775',), [], ()),
+                  'Auth Proxy Start': (('Duo Security Authentication Proxy', 'Init Complete',), [], (" ")),
+                  'Disabled AD User': (('data 533', 'data534'), [], (" ")),
+                  'Locked AD Account': (('data 775',), [], (" ")),
                   'Service Account no bind': (('Error sending AD auth request', 'invalid Credentials,',),
                                                            [], ('test3')),
                   'Bind after disconnect': (
-                      ('Attempt to bindRequest multiple times in the same LDAP connection',), [], ()),
-                  'Invalid RADIUS IP': (('dropping packet', 'Unknown Client',), [], ()),
-                  'Shared secret mismatch': (('Cannot decode password',), [], ()),
-                  'Invalid encrypted secret': (('Invalid secret',), [], ()),
+                      ('Attempt to bindRequest multiple times in the same LDAP connection',), [], (" ")),
+                  'Invalid RADIUS IP': (('dropping packet', 'Unknown Client',), [], (" ")),
+                  'Shared secret mismatch': (('Cannot decode password',), [], (" ")),
+                  'Invalid encrypted secret': (('Invalid secret',), [], (" ")),
                   'Primary auth disconnect': (('User timeout caused connection failure',),
-                                                                         [], ()),
-                  'DNS failing': (('DNS lookup failed',), [], ()),
+                                                                         [], (" ")),
+                  'DNS failing': (('DNS lookup failed',), [], (" ")),
                   'DNS failing secure': (
-                      ('DNSLookupError', 'Denied Duo login on preauth failure'), [], ()),
+                      ('DNSLookupError', 'Denied Duo login on preauth failure'), [], (" ")),
                   'Cloud unreachable TCP': (
-                      ('TCPTimedOutError', 'allowed Duo login on preauth failure'), [], ()),
-                  'Invalid protected SKEY': (('CryptUnprotectData', 'The data is invalid',), [], ()),
-                  'Invalid IKEY': (('Invalid integration key in request credentials', '40102'), [], ()),
-                  'Invalid private key file': (('Could not open private key file',), [], ()),
+                      ('TCPTimedOutError', 'allowed Duo login on preauth failure'), [], (" ")),
+                  'Invalid protected SKEY': (('CryptUnprotectData', 'The data is invalid',), [], (" ")),
+                  'Invalid IKEY': (('Invalid integration key in request credentials', '40102'), [], (" ")),
+                  'Invalid private key file': (('Could not open private key file',), [], (" ")),
                   'User not in sec group': (
-                      ('Tried to search security group DN for object sid but it could not be found',), [], ()),
-                  'User not enrolled block': (('enroll', 'enrolled'), [], ()),
-                  'No reply from user': (('Login timed out',), [], ()),
-                  'User not enrolled pass': (('Allowing unknown user',), [], ()),
-                  'Plain auth required': (('0xA3',), [], ()),
+                      ('Tried to search security group DN for object sid but it could not be found',), [], (" ")),
+                  'User not enrolled block': (('enroll', 'enrolled'), [], (" ")),
+                  'No reply from user': (('Login timed out',), [], (" ")),
+                  'User not enrolled pass': (('Allowing unknown user',), [], (" ")),
+                  'Plain auth required': (('0xA3',), [], (" ")),
                   'Bad RADIUS protocol': (
-                      ('Missing or improperly formatted password',), [], ()),
-                  'User not found': (('data 525',), [], ()),
-                  'User PW Expired': (('data 532',), [], ()),
-                  'User PW Reset': (('data 773',), [], ()),
-                  'unlike hosts AD sync': (('sections must have the exact same',), [], ()),
-                  'NTLMv2 disabled on DC': (('data 1',), [], ()),
-                  'Invalid mail attribute': (('Invalid LDAP filter',), [], ())
+                      ('Missing or improperly formatted password',), [], (" ")),
+                  'User not found': (('data 525',), [], (" ")),
+                  'User PW Expired': (('data 532',), [], (" ")),
+                  'User PW Reset': (('data 773',), [], (" ")),
+                  'unlike hosts AD sync': (('sections must have the exact same',), [], (" ")),
+                  'NTLMv2 disabled on DC': (('data 1',), [], (" ")),
+                  'Invalid mail attribute': (('Invalid LDAP filter',), [], (" "))
                   }
 
     for line in conc_file:
