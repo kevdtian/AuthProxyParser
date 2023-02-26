@@ -408,7 +408,7 @@ def compile_events(conc_file):
     events_dic = {'Successful Authentication': (('Success, Logging you in',), [], ('Authentication successful, no action needed','')),
                   'Incorrect Password': (('invalidCredentials', 'data 52e',), [], ('Please check users password','https://help.duo.com/s/article/2953?language=en_US#incorrectpw')),
                   'Invalid SKEY': (('Invalid SKEY',), [], ('Check the Skey','https://help.duo.com/s/article/2953?language=en_US#invalidskey')),
-                  'No User LDAP permission': (('data 531',), [], ('Ensure user has permission to login to machine','https://help.duo.com/s/article/2953?language=en_US#usernologin')),
+                  'No User LDAP permission': (('data 531',), [], ('User lacks AD permission','https://help.duo.com/s/article/2953?language=en_US#usernologin')),
                   'Auth Proxy Start': (('Duo Security Authentication Proxy', 'Init Complete',), [], ('Auth Proxy successfully started','')),
                   'Disabled AD User': (('data 533', 'data534'), [], ('Account disabled in AD','https://help.duo.com/s/article/2953?language=en_US#disabledadacct')),
                   'Locked AD Account': (('data 775',), [], ('Please unlock user in AD','https://help.duo.com/s/article/2953?language=en_US#lockedadacct')),
