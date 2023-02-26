@@ -345,7 +345,7 @@ class MyGUI(tk.Frame):
         for file in encoded:
             file.close()
         try:
-            datetime.strptime(concatenated_file[0][10:15], "%m-%d")
+            datetime.strptime(concatenated_file[0][11:16], "%m-%d")
 
         except ValueError:
             self.display_output_box("Incorrect proxy log file", None, None)
@@ -528,7 +528,7 @@ def merge_files(files):
 
     for file in files:
         for index,line in enumerate(file.readlines()):
-            return_list.append(str(index+1)+'   |'+line)
+            return_list.append(str(index+1)+'   | '+line)
         return_list.append(f'\n------End of {file.name} File------\n')
     return return_list
 
@@ -539,8 +539,12 @@ def filter_by_date(lines, from_date, to_date):
     filtered_list = list()
     if lines:
         for line in lines:
-            if line[0:10] in dates_list or line[0:5] == " ":
+            sep = line.find('| ')
+            nonDatedLines = line[sep+2:sep+4]
+            datedLines = line[sep+2:sep+12]
+            if datedLines in dates_list or nonDatedLines.isspace():
                 filtered_list.append(line)
+
     return filtered_list
 
 
